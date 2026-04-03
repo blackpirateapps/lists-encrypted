@@ -28,11 +28,13 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-${{ runner.os }}-
 
-      - name: Ensure Gradle wrapper executable
-        run: chmod +x ./gradlew
+      - name: Download Gradle distribution
+        run: |
+          curl -L https://services.gradle.org/distributions/gradle-8.7-bin.zip -o gradle.zip
+          unzip -q gradle.zip
 
       - name: Build Debug APK
-        run: ./gradlew --no-daemon assembleDebug
+        run: ./gradle-8.7/bin/gradle --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
