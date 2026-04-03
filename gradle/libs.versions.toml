@@ -8,6 +8,7 @@ composeBom = "2024.09.03"
 room = "2.6.1"
 serialization = "1.7.3"
 securityCrypto = "1.1.0-alpha06"
+material = "1.12.0"
 junit = "4.13.2"
 androidxTestExt = "1.2.1"
 espresso = "3.6.1"
@@ -31,6 +32,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExt" }
