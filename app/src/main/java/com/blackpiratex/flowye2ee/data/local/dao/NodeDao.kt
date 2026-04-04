@@ -15,8 +15,17 @@ interface NodeDao {
     @Query("SELECT * FROM NodeEntity WHERE parentId = :parentId ORDER BY position ASC")
     suspend fun getChildren(parentId: String): List<NodeEntity>
 
+    @Query("SELECT * FROM NodeEntity WHERE parentId = :parentId ORDER BY position ASC")
+    suspend fun getChildrenSync(parentId: String): List<NodeEntity>
+
     @Query("SELECT * FROM NodeEntity WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): NodeEntity?
+
+    @Query("SELECT * FROM NodeEntity ORDER BY parentId ASC, position ASC")
+    suspend fun getAllNodes(): List<NodeEntity>
+
+    @Query("SELECT COUNT(*) FROM NodeEntity")
+    suspend fun countNodes(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(node: NodeEntity)
@@ -29,4 +38,10 @@ interface NodeDao {
 
     @Query("DELETE FROM NodeEntity WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Query("DELETE FROM NodeEntity")
+    suspend fun deleteAll()
+
+    @Query("DELETE FROM NodeEntity WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<String>)
 }

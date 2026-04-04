@@ -10,4 +10,8 @@ class JsonSerializer {
     fun serialize(richText: RichText): String = json.encodeToString(richText)
 
     fun deserialize(encoded: String): RichText = json.decodeFromString(encoded)
+
+    fun encodePayload(payload: CryptoPayload): String = json.encodeToString(payload)
+
+    fun decodePayload(encoded: String): CryptoPayload = json.decodeFromString(encoded)
 }

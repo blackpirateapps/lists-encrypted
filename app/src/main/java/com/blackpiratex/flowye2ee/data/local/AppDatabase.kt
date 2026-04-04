@@ -2,13 +2,15 @@ package com.blackpiratex.flowye2ee.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.blackpiratex.flowye2ee.data.local.dao.NodeDao
 import com.blackpiratex.flowye2ee.data.local.entity.NodeEntity
 
 @Database(
     entities = [NodeEntity::class],
-    version = 1
+    version = 2
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun nodeDao(): NodeDao
 }

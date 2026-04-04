@@ -9,6 +9,8 @@ This document captures the core architectural decisions, data models, and constr
 - Architecture: MVVM + Clean + Repository
 - Storage: Room
 - Encryption: AES-GCM (Android Keystore backed)
+- Onboarding: optional password setup (skippable)
+- Unlock: password prompt if encryption enabled
 
 ## Non-Negotiable Constraints
 - Everything is a list item (node). There are no block types.
@@ -62,16 +64,19 @@ Implementation in `app/src/main/java/com/blackpiratex/flowye2ee/data/crypto/`.
 ### Flow
 1. Serialize `RichText` to JSON.
 2. Encrypt with AES-GCM.
-3. Store bytes in Room.
+3. Store payload JSON in Room.
 4. Decrypt only for rendering or search.
 
 ### CryptoManager
-`CryptoManager` uses Android Keystore with AES/GCM. The IV is stored alongside ciphertext in a single byte array payload.
+`CryptoManager` uses Android Keystore with AES/GCM. The IV is stored alongside ciphertext in a `CryptoPayload` JSON blob, which is encrypted and stored in Room as a string.
 
 ### Password and Key Strategy (Current + Future)
-- Current scaffold is device-managed; the next step is to add password-derived keys (PBKDF2) and store encrypted key material in Keystore.
-- Must support re-encryption on password change: decrypt all nodes with old key, re-encrypt with new key, update in DB.
-- Design should allow future cloud sync without data loss: derive encryption from email + password, with local migration support.
+- Device-managed key is used when the user skips password setup.
+- Password-based key is derived via PBKDF2 and cached in-memory after unlock.
+- Onboarding prompts for a password but can be skipped. If skipped, enable later in Settings.
+- If password is enabled, app shows an unlock screen before editor.
+- Re-encryption is supported on password change: decrypt all nodes with old key, re-encrypt with new key, update in DB.
+- Future cloud sync still derives from email + password; local migration is supported.
 
 ## Repository Pattern
 `NodeRepository` in `app/src/main/java/com/blackpiratex/flowye2ee/data/repository/NodeRepository.kt` is responsible for:
@@ -79,10 +84,13 @@ Implementation in `app/src/main/java/com/blackpiratex/flowye2ee/data/crypto/`.
 - Decrypting content for rendering
 - Updating content with encryption
 
-Future repository work:
-- CRUD for tree operations (indent, un-indent, reorder)
+Repository now supports:
+- CRUD, subtree delete
 - Style transforms (preserve id, content, children, position)
-- Search that decrypts in-memory only
+- Indent and unindent
+- Demo outline seeding
+- JSON export
+- Markdown export use case
 
 ## UI and Editor Behavior
 UI is Compose. Target behaviors:
@@ -94,6 +102,9 @@ UI is Compose. Target behaviors:
 - Tap node: zoom into it
 - Breadcrumbs at top
 - Collapse/expand children
+- Settings screen includes encryption enable/rotation
+- Search bar filters nodes by plaintext (in-memory decrypted only)
+- Tablet layout uses two panes (outline + focus)
 
 ### Node Styles (Visual Only)
 All node styles are overlays. They must look distinct without changing the data model.
@@ -138,6 +149,9 @@ Converts current node style only; content/children preserved.
 - Encryption/decryption
 - Re-encryption on password change
 - Export correctness
+Additional tests added:
+- Key derivation randomness
+- Markdown mapping tokens
 
 ## GitHub Actions
 Use the existing APK build workflow unchanged.

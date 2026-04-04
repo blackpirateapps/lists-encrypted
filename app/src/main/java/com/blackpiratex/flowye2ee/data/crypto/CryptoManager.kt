@@ -2,7 +2,6 @@ package com.blackpiratex.flowye2ee.data.crypto
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import java.nio.ByteBuffer
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -31,29 +30,17 @@ class CryptoManager(
         return keyGenerator.generateKey()
     }
 
-    fun encrypt(plainBytes: ByteArray): ByteArray {
+    fun encrypt(plainBytes: ByteArray, secretKey: SecretKey = getOrCreateSecretKey()): CryptoPayload {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val secretKey = getOrCreateSecretKey()
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
         val iv = cipher.iv
         val cipherText = cipher.doFinal(plainBytes)
-        val buffer = ByteBuffer.allocate(4 + iv.size + cipherText.size)
-        buffer.putInt(iv.size)
-        buffer.put(iv)
-        buffer.put(cipherText)
-        return buffer.array()
+        return CryptoPayload(iv = iv, cipherText = cipherText)
     }
 
-    fun decrypt(cipherBytes: ByteArray): ByteArray {
-        val buffer = ByteBuffer.wrap(cipherBytes)
-        val ivLength = buffer.int
-        val iv = ByteArray(ivLength)
-        buffer.get(iv)
-        val cipherText = ByteArray(buffer.remaining())
-        buffer.get(cipherText)
+    fun decrypt(payload: CryptoPayload, secretKey: SecretKey = getOrCreateSecretKey()): ByteArray {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val secretKey = getOrCreateSecretKey()
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
-        return cipher.doFinal(cipherText)
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, payload.iv))
+        return cipher.doFinal(payload.cipherText)
     }
 }

@@ -12,7 +12,8 @@ data class RichText(
 data class SpanRange(
     val start: Int,
     val end: Int,
-    val style: SpanStyleType
+    val style: SpanStyleType,
+    val link: String? = null
 )
 
 @Serializable
