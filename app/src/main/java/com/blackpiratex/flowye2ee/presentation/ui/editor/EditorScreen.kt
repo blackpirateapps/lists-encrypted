@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,8 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.blackpiratex.flowye2ee.domain.model.NodeStyle
@@ -46,6 +50,7 @@ import com.blackpiratex.flowye2ee.domain.model.SlashCommand
 import com.blackpiratex.flowye2ee.presentation.state.NodeUi
 import com.blackpiratex.flowye2ee.presentation.viewmodel.EditorViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorScreen(
     viewModel: EditorViewModel,
@@ -88,8 +93,8 @@ fun EditorScreen(
                 onLink = { state.focusedNodeId?.let { viewModel.applyInlineStyle(it, com.blackpiratex.flowye2ee.domain.model.SpanStyleType.LINK) } }
             )
             Divider()
-            val list = if (state.searchQuery.isNotBlank()) state.searchResults else state.nodes
             LazyColumn(modifier = Modifier.fillMaxSize()) {
+                val list = if (state.searchQuery.isNotBlank()) state.searchResults else state.nodes
                 items(list, key = { it.id }) { node ->
                     NodeRow(
                         node = node,
